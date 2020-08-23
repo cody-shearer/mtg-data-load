@@ -5,6 +5,7 @@
 
 import urllib3
 import json
+import mysql.connector
 
 def get_oracle_cards():
     http = urllib3.PoolManager()
@@ -19,15 +20,39 @@ def get_oracle_cards():
     return  ret
 
 def get_oracle_cards_test():
-    f = open('oracle-cards-20200820090701.json',encoding='utf-8')
+    f = open('C:\\Users\\Cody\\Documents\\GitHub\\mtg-data-load\\oracle-cards-20200820090701.json',encoding='utf-8')
     ret = json.load(f)
     return  ret
 
 def process_image(url):
     pass    
 
+def create_temp_table(connection):
+    cursor = connection.cursor()
+    sql = (
+        'create temporary table mtg.oracle_staging \
+        (name, mana_cost, type, rules, artist, power, toughness, cmc, art_file) \
+        from mtg.oracle_cards limit 0')
+    cursor.execute(sql)
+    connection.commit()
+
+def insert_cards(connection, cards):
+    cursor = connection.cursor()
+    sql = (
+        'insert into mtg.oracle_staging(name, mana_cost, type, rules, artist, power, toughness, cmc, art_file) \
+        values (%s, %s, %s, %s, %s, %s, %s, %s, %s)')
+    cursor.executemany(sql, cards)    
+    connection.commit()
+
+
 oracle = get_oracle_cards_test()
 
-image_url = oracle[0]['image_uris']['art_crop']
+cards = []
+for card in oracle:
+    if 
+    cards.append(1)
 
-print(image_url)
+
+connection = mysql.connector.connect(host='localhost', user ='root', password = 'pass', db='mtg', port=3307)
+
+print(1)

@@ -1,11 +1,11 @@
 import mysql.connector
 
-connection = mysql.connector.connect(host='localhost', user ='root', password = 'pass')
+connection = mysql.connector.connect(host='localhost', user ='root', password = 'pass', db='mtg', port=3307)
 
-query = 'create database mtgdb'
+query = 'select * from test'
 
 cursor = connection.cursor()
-result = cursor.execute(query)
+cursor.execute(query)
 
-a=1
+print(cursor.description)
 
