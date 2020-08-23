@@ -20,10 +20,7 @@ def get_oracle_cards():
 
     #this is the most recent url for the bulk oracle data
     oracleurl = [obj for obj in bulkdata['data'] if obj['name']=='Oracle Cards'][0]['download_uri']
-    oraclerequest = http.request('GET', oracleurl)
-
-    ret = json.loads(oraclerequest.data)
-    return  ret
+    return json.loads(http.request('GET', oracleurl).data) 
 
 def process_image(url):
     pass    
@@ -93,6 +90,9 @@ def update_card_image(connection, name, art_file):
 cards = []
 
 for card in get_oracle_cards():
+    if len(cards) == 0:
+        print('json load completed')
+
     cmc = card['cmc']
     legality = card['legalities']['vintage']
     if 'image_uris' in card:
