@@ -121,7 +121,7 @@ for card in oracle:
             cmc,
             art_uri])
 
-conn = mysql.connector.connect(host='localhost', user ='root', password = 'pass', db='mtg', port=3307)
+conn = mysql.connector.connect(host='localhost', user ='root', password = 'pass', db='mtg', port=3306)
 
 create_temp_table(conn)
 
