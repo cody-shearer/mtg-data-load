@@ -25,11 +25,6 @@ def get_oracle_cards():
     ret = json.loads(oraclerequest.data)
     return  ret
 
-def get_oracle_cards_test():
-    f = open('C:\\Users\\Cody\\Documents\\GitHub\\mtg-data-load\\oracle-cards-20200820090701.json',encoding='utf-8')
-    ret = json.load(f)
-    return  ret
-
 def process_image(url):
     pass    
 
@@ -95,10 +90,9 @@ def update_card_image(connection, name, art_file):
     cursor.execute(sql, (art_file, name))
     connection.commit()
 
-oracle = get_oracle_cards_test()
-
 cards = []
-for card in oracle:
+
+for card in get_oracle_cards():
     cmc = card['cmc']
     legality = card['legalities']['vintage']
     if 'image_uris' in card:
@@ -121,11 +115,13 @@ for card in oracle:
             cmc,
             art_uri])
 
-conn = mysql.connector.connect(host='localhost', user ='root', password = 'pass', db='mtg', port=3307)
+conn = mysql.connector.connect(host='localhost', user ='root', password = 'pass', db='mtg', port=3306)
 
 create_temp_table(conn)
 
 insert_cards(conn, cards)
+
+del cards
 
 upsert(conn)
 
@@ -142,7 +138,7 @@ for card in get_cards_missing_images(conn)[0]:
     try:
         response = requests.get(card[2])
         img = Image.open(BytesIO(response.content))
-    except ex as identifier:
+    except:
         pass
     else:
         file_path = '/home/pi/card_images/' + str(card[1]) + '/' + str(uuid.uuid1()) + '.png'
