@@ -52,7 +52,7 @@ def main():
     create_temp_table(conn)
 
     insert_cards(conn, cards)
-    print('Data loaded to MySql server')
+    print('Data loaded to MySql')
 
     del cards
 
