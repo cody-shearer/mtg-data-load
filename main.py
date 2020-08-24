@@ -75,7 +75,7 @@ def get_cards_missing_images(connection):
     cursor.execute(sql)
     return cursor.fetchall()
 
-def update_card_image(connection, name, art_file):
+def update_card_image(connection, card_id, art_file):
     cursor = connection.cursor()
     sql = (
         'update\
@@ -84,7 +84,7 @@ def update_card_image(connection, name, art_file):
             art_file = %s\
         where\
             id = %s')
-    cursor.execute(sql, (art_file, name))
+    cursor.execute(sql, (art_file, card_id))
     connection.commit()
 
 cards = []
@@ -119,22 +119,31 @@ os.system('/etc/init.d/mysql start')
 conn = mariadb.connect(host='127.0.0.1', user ='root', password = 'pass', db='mtg')
 
 create_temp_table(conn)
+print('Staging table created')
 
 insert_cards(conn, cards)
+print('Data loaded to MySql server')
 
 del cards
 
 upsert(conn)
+print('Data merged')
 
 #make folders as needed
-for i in range(0, 21):
-    path = '/home/pi/card_images/' + str(i)
-    if not os.path.exists(path):
+path = '/home/pi/card_images/'
+if not os.path.exists(path):
         os.mkdir(path)
+
+for i in range(0, 21):
+    cmc_path = path + str(i)
+    if not os.path.exists(cmc_path):
+        os.mkdir(cmc_path)
+
+print('File structure created')
 
 for card in get_cards_missing_images(conn):
     #wait as requested by API. needed to prevent IP ban.
-    time.sleep(0.1)
+    time.sleep(0.05)
 
     try:
         response = requests.get(card[2])
@@ -150,6 +159,6 @@ for card in get_cards_missing_images(conn):
 
         update_card_image(conn, card[0], file_path)
 
-        print(card)
+        print(card[0])
 
 print('Done!')
