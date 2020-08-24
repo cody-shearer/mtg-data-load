@@ -52,11 +52,6 @@ def upsert(connection):
             os.name, os.mana_cost, os.type, os.rules, os.artist, os.power, os.toughness, os.cmc, os.art_uri\
         from\
             mtg.oracle_staging os\
-        left join\
-            mtg.oracle_cards oc\
-                on os.name = oc.name\
-        where\
-            oc.name is null\
         on duplicate key update\
             name = os.name, mana_cost = os.mana_cost, type = os.type, rules = os.rules, artist = os.artist, power = os.power, toughness = os.toughness, cmc = os.cmc, art_uri = os.art_uri')
     cursor.execute(sql)
