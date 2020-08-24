@@ -5,7 +5,7 @@
 
 import urllib3
 import json
-import mysql.connector
+import mariadb
 import uuid
 import os
 import time
@@ -20,10 +20,10 @@ def get_oracle_cards():
 
     #this is the most recent url for the bulk oracle data
     oracleurl = [obj for obj in bulkdata['data'] if obj['name']=='Oracle Cards'][0]['download_uri']
-    return json.loads(http.request('GET', oracleurl).data) 
+    return json.loads(http.request('GET', oracleurl).data)
 
 def process_image(url):
-    pass    
+    pass
 
 def create_temp_table(connection):
     cursor = connection.cursor()
@@ -39,7 +39,7 @@ def insert_cards(connection, cards):
     sql = (
         'insert into mtg.oracle_staging(name, mana_cost, type, rules, artist, power, toughness, cmc, art_uri) \
         values (%s, %s, %s, %s, %s, %s, %s, %s, %s)')
-    cursor.executemany(sql, cards)    
+    cursor.executemany(sql, cards)
     connection.commit()
 
 def upsert(connection):
@@ -89,10 +89,9 @@ def update_card_image(connection, name, art_file):
 
 cards = []
 
-for card in get_oracle_cards():
-    if len(cards) == 0:
-        print('json load completed')
+os.system('/etc/init.d/mysql stop')
 
+for card in get_oracle_cards():
     cmc = card['cmc']
     legality = card['legalities']['vintage']
     if 'image_uris' in card:
@@ -101,7 +100,7 @@ for card in get_oracle_cards():
     if 'card_faces' in card: #only selecting the front face of 2 faced cards
         card = card['card_faces'][0]
         if 'image_uris' in card:
-            art_uri = card['image_uris']['art_crop'] 
+            art_uri = card['image_uris']['art_crop']
 
     if 'Creature' in card['type_line'] and legality != 'not_legal':
         cards.append([
@@ -115,7 +114,9 @@ for card in get_oracle_cards():
             cmc,
             art_uri])
 
-conn = mysql.connector.connect(host='localhost', user ='root', password = 'pass', db='mtg', port=3306)
+os.system('/etc/init.d/mysql start')
+
+conn = mariadb.connect(host='127.0.0.1', user ='root', password = 'pass', db='mtg')
 
 create_temp_table(conn)
 
@@ -131,8 +132,8 @@ for i in range(0, 21):
     if not os.path.exists(path):
         os.mkdir(path)
 
-for card in get_cards_missing_images(conn)[0]:
-    #wait as requested by API. needed to prevent IP ban. 
+for card in get_cards_missing_images(conn):
+    #wait as requested by API. needed to prevent IP ban.
     time.sleep(0.1)
 
     try:
@@ -152,9 +153,3 @@ for card in get_cards_missing_images(conn)[0]:
         print(card)
 
 print('Done!')
-        
-
-
-
-
-
