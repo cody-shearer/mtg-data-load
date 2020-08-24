@@ -117,6 +117,7 @@ for card in get_oracle_cards():
 os.system('/etc/init.d/mysql start')
 
 conn = mariadb.connect(host='127.0.0.1', user ='root', password = 'pass', db='mtg')
+print('Connection created')
 
 create_temp_table(conn)
 print('Staging table created')
