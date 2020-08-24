@@ -124,3 +124,4 @@ dmypy.json
 # Pyre type checker
 .pyre/
 oracle-cards-20200820090701.json
+.vscode/launch.json
